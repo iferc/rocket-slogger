@@ -1,0 +1,36 @@
+[package]
+name = "rocket-slogger"
+version = "0.1.0-rc.1"
+authors = ["iferc <github@iferc.ca>"]
+edition = "2021"
+description = """
+Middleware (fairing) for Rocket.rs web servers to have integrated slog logging of api activity
+"""
+repository = "https://github.com/iferc/rocket-slogger"
+keywords = ["rocket", "slog", "slogger", "logging"]
+license = "MIT OR Apache-2.0"
+readme = "./README.md"
+exclude = [".github", "example"]
+
+[dependencies]
+rocket = "0.5.0-rc.1"
+slog = "2.7"
+slog-term = { version = "2.8", optional = true }
+slog-bunyan = { version = "2.3", optional = true }
+chrono = { version = "0.4", optional = true }
+uuid = { version = "0.8", features = ["v4"], optional = true }
+
+[dev-dependencies]
+slog-term = "2.8"
+slog-bunyan = "2.3"
+
+[features]
+default = []
+
+transaction = ["chrono", "uuid"]
+
+terminal = ["slog-term"]
+bunyan = ["slog-bunyan"]
+
+[package.metadata.docs.rs]
+all-features = true
