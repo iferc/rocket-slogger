@@ -20,11 +20,10 @@ fn url_from_rocket_config(config: &Config) -> String {
 fn temp_dir_path_from_rocket_config(config: &Config) -> String {
     config
         .temp_dir
-        .clone()
+        .relative()
         .into_os_string()
         .into_string()
-        .ok()
-        .unwrap_or_else(|| String::from(""))
+        .unwrap_or_else(|_| String::from(""))
 }
 
 #[rocket::async_trait]
