@@ -22,7 +22,7 @@ impl RequestTransaction {
 
     pub fn id_as_string(&self) -> String {
         self.id
-            .to_hyphenated()
+            .hyphenated()
             .encode_lower(&mut Uuid::encode_buffer())
             .to_string()
     }

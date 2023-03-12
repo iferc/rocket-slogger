@@ -84,7 +84,7 @@ impl Slogger {
         let logger = &*self.logger;
 
         #[cfg(feature = "transaction")]
-        let logger = {
+        let new_logger = {
             let transaction = transaction::RequestTransaction::new().attach_on(&request);
 
             logger.new(log_fields!(
@@ -93,6 +93,8 @@ impl Slogger {
                 "transaction" => transaction.id_as_string(),
             ))
         };
+        #[cfg(feature = "transaction")]
+        let logger = &new_logger;
 
         Self::new_logger_with_request_details(logger, request)
     }
