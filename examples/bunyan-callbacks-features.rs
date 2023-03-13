@@ -63,7 +63,7 @@ fn request_logger_callback<'r>(
     _request: &'r mut rocket::Request<'_>,
 ) -> Pin<Box<(dyn Future<Output = Option<Arc<rocket_slogger::Logger>>> + Send + 'r)>> {
     // if you import FutureExt from the rocket or futures crate,
-    // then you can avoid wrapping the async block in `Box::pin` while instead calling .boxed() on it.
+    // then you can avoid wrapping the async block in `Box::pin` while instead calling .boxed() on it
     use rocket::futures::FutureExt;
 
     async move {
@@ -86,7 +86,9 @@ fn response_logger_callback<'r>(
     logger: Arc<rocket_slogger::Logger>,
     _request: &'r rocket::Request<'_>,
     _response: &'r mut rocket::Response<'_>,
-) -> Pin<Box<(dyn Future<Output = Option<Arc<rocket_slogger::Logger>>> + Send + 'r)>> {
+    // if you import the BoxFuture alias from the rocket or futures crate,
+    // then you can simplify the returning type as they are functionally the same
+) -> rocket::futures::future::BoxFuture<'r, Option<Arc<rocket_slogger::Logger>>> {
     // currently requires a pinned box to have an async context
     Box::pin(async move {
         // here any async function calls or server state can be fetched
