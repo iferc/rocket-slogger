@@ -1,6 +1,7 @@
 use crate::{info, Slogger};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::{Build, Config, Data, Orbit, Request, Response, Rocket};
+use std::sync::Arc;
 
 #[inline]
 fn url_from_rocket_config(config: &Config) -> String {
@@ -95,20 +96,39 @@ impl Fairing for Slogger {
     }
 
     async fn on_request(&self, request: &mut Request<'_>, _: &mut Data<'_>) {
-        let logger = self.get_for_request(request);
+        #[allow(unused_mut)]
+        let mut logger = Arc::new(self.get_for_request(request));
+
+        #[cfg(feature = "callbacks")]
+        for handler in &self.request_handlers {
+            if let Some(new_logger) = handler(logger.clone(), request).await {
+                logger = new_logger;
+            }
+        }
 
         info!(logger, "Request");
     }
 
     async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
-        let logger = self.get_for_response(request, response);
+        #[allow(unused_mut)]
+        let mut logger = Arc::new(self.get_for_response(request, response));
+
+        #[cfg(feature = "callbacks")]
+        for handler in &self.response_handlers {
+            if let Some(new_logger) = handler(logger.clone(), request, response).await {
+                logger = new_logger;
+            }
+        }
+
         let status = response.status();
+        let body_size = response.body_mut().size().await;
 
         info!(
             logger,
             "Response";
             "reason" => status.reason().map(|reason| reason.to_string()),
             "code" => status.code,
+            "size" => body_size,
         );
     }
 }
