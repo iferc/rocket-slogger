@@ -58,12 +58,15 @@ fn logger() -> Slogger {
 }
 
 #[cfg(feature = "callbacks")]
-fn request_logger_callback(
+fn request_logger_callback<'r>(
     logger: Arc<rocket_slogger::Logger>,
-    _request: &mut rocket::Request<'_>,
-) -> Pin<Box<(dyn Future<Output = Option<Arc<rocket_slogger::Logger>>> + Send + 'static)>> {
-    // currently requires a pinned box to have an async context
-    Box::pin(async move {
+    _request: &'r mut rocket::Request<'_>,
+) -> Pin<Box<(dyn Future<Output = Option<Arc<rocket_slogger::Logger>>> + Send + 'r)>> {
+    // if you import FutureExt from the rocket or futures crate,
+    // then you can avoid wrapping the async block in `Box::pin` while instead calling .boxed() on it.
+    use rocket::futures::FutureExt;
+
+    async move {
         // here any async function calls or server state can be fetched
         // so that it can be added to the logger that will form the response log
         let new_logger = logger.new(rocket_slogger::log_fields!(
@@ -73,15 +76,17 @@ fn request_logger_callback(
 
         // the new logger must be returned in an Option<Arc<_>>
         Some(Arc::new(new_logger))
-    })
+    }
+    // currently requires a pinned box to have an async context
+    .boxed()
 }
 
 #[cfg(feature = "callbacks")]
-fn response_logger_callback(
+fn response_logger_callback<'r>(
     logger: Arc<rocket_slogger::Logger>,
-    _request: &rocket::Request<'_>,
-    _response: &mut rocket::Response<'_>,
-) -> Pin<Box<(dyn Future<Output = Option<Arc<rocket_slogger::Logger>>> + Send + 'static)>> {
+    _request: &'r rocket::Request<'_>,
+    _response: &'r mut rocket::Response<'_>,
+) -> Pin<Box<(dyn Future<Output = Option<Arc<rocket_slogger::Logger>>> + Send + 'r)>> {
     // currently requires a pinned box to have an async context
     Box::pin(async move {
         // here any async function calls or server state can be fetched

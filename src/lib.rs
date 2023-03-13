@@ -26,10 +26,11 @@ pub struct Slogger {
     #[cfg(feature = "callbacks")]
     request_handlers: Vec<
         Arc<
-            dyn Fn(
+            dyn for<'r> Fn(
                     Arc<Logger>,
-                    &mut Request<'_>,
-                ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+                    &'r mut Request<'_>,
+                )
+                    -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send + 'r>>
                 + Send
                 + Sync
                 + 'static,
@@ -39,11 +40,12 @@ pub struct Slogger {
     #[cfg(feature = "callbacks")]
     response_handlers: Vec<
         Arc<
-            dyn Fn(
+            dyn for<'r> Fn(
                     Arc<Logger>,
-                    &Request<'_>,
-                    &mut Response<'_>,
-                ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+                    &'r Request<'_>,
+                    &'r mut Response<'_>,
+                )
+                    -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send + 'r>>
                 + Send
                 + Sync
                 + 'static,
@@ -154,12 +156,13 @@ impl Slogger {
     }
 
     #[cfg(feature = "callbacks")]
-    pub fn on_request<'h>(
+    pub fn on_request(
         mut self,
-        handler: impl Fn(
+        handler: impl for<'r> Fn(
                 Arc<Logger>,
-                &mut Request<'_>,
-            ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+                &'r mut Request<'_>,
+            )
+                -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send + 'r>>
             + Send
             + Sync
             + 'static,
@@ -171,11 +174,12 @@ impl Slogger {
     #[cfg(feature = "callbacks")]
     pub fn on_response(
         mut self,
-        handler: impl Fn(
+        handler: impl for<'r> Fn(
                 Arc<Logger>,
-                &Request<'_>,
-                &mut Response<'_>,
-            ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+                &'r Request<'_>,
+                &'r mut Response<'_>,
+            )
+                -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send + 'r>>
             + Send
             + Sync
             + 'static,
