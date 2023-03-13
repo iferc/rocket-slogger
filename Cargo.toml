@@ -27,6 +27,8 @@ slog-bunyan = "2.4"
 [features]
 default = []
 
+callbacks = []
+
 transaction = ["chrono", "uuid"]
 
 terminal = ["slog-term"]
