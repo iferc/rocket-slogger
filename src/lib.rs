@@ -14,9 +14,41 @@ pub use slog::{error, info, warn};
 use rocket::{Request, Response};
 use std::sync::Arc;
 
-#[derive(Clone, Debug)]
+#[allow(unused_imports)]
+use std::future::Future;
+#[allow(unused_imports)]
+use std::pin::Pin;
+
+#[derive(Clone)]
 pub struct Slogger {
     logger: Arc<Logger>,
+
+    #[cfg(feature = "callbacks")]
+    request_handlers: Vec<
+        Arc<
+            dyn Fn(
+                    Arc<Logger>,
+                    &mut Request<'_>,
+                ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+                + Send
+                + Sync
+                + 'static,
+        >,
+    >,
+
+    #[cfg(feature = "callbacks")]
+    response_handlers: Vec<
+        Arc<
+            dyn Fn(
+                    Arc<Logger>,
+                    &Request<'_>,
+                    &mut Response<'_>,
+                ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+                + Send
+                + Sync
+                + 'static,
+        >,
+    >,
 }
 
 impl Slogger {
@@ -43,6 +75,12 @@ impl Slogger {
     pub fn from_logger(logger: Logger) -> Self {
         Self {
             logger: Arc::new(logger),
+
+            #[cfg(feature = "callbacks")]
+            request_handlers: vec![],
+
+            #[cfg(feature = "callbacks")]
+            response_handlers: vec![],
         }
     }
 
@@ -113,6 +151,37 @@ impl Slogger {
                 "method" => format!("{}", request.method()),
             ))
         }
+    }
+
+    #[cfg(feature = "callbacks")]
+    pub fn on_request<'h>(
+        mut self,
+        handler: impl Fn(
+                Arc<Logger>,
+                &mut Request<'_>,
+            ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Self {
+        self.request_handlers.push(Arc::new(handler));
+        self
+    }
+
+    #[cfg(feature = "callbacks")]
+    pub fn on_response(
+        mut self,
+        handler: impl Fn(
+                Arc<Logger>,
+                &Request<'_>,
+                &mut Response<'_>,
+            ) -> Pin<Box<dyn Future<Output = Option<Arc<Logger>>> + Send>>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Self {
+        self.response_handlers.push(Arc::new(handler));
+        self
     }
 }
 
