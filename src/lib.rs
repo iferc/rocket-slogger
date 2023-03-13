@@ -85,7 +85,7 @@ impl Slogger {
     }
 
     pub fn get(&self) -> &Logger {
-        &*self.logger
+        &self.logger
     }
 
     pub fn get_for_request(&self, request: &Request<'_>) -> Logger {
@@ -189,6 +189,6 @@ impl std::ops::Deref for Slogger {
     type Target = Logger;
 
     fn deref(&self) -> &Logger {
-        &*self.logger
+        &self.logger
     }
 }
