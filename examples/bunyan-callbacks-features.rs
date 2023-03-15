@@ -29,7 +29,7 @@ fn logger() -> Slogger {
                     "in:request" => "more dynamic metrics",
                 ));
 
-                // the new logger must be returned in an Option<Arc<_>>
+                // the new logger must be returned in an Option<Arc<Logger>>
                 Some(Arc::new(new_logger))
             })
         })
@@ -46,7 +46,7 @@ fn logger() -> Slogger {
                     "in:response" => "more dynamic metrics",
                 ));
 
-                // the new logger must be returned in an Option<Arc<_>>
+                // the new logger must be returned in an Option<Arc<Logger>>
                 Some(Arc::new(new_logger))
             })
         })
