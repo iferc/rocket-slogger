@@ -1,18 +1,24 @@
-use chrono::{DateTime, Local};
+use chrono::DateTime;
 use rocket::Request;
 use uuid::Uuid;
+
+#[cfg(feature = "local_time")]
+type TimeZone = chrono::Local;
+
+#[cfg(not(feature = "local_time"))]
+type TimeZone = chrono::Utc;
 
 #[derive(Copy, Clone, Debug)]
 pub struct RequestTransaction {
     pub id: Uuid,
-    pub received: DateTime<Local>,
+    pub received: DateTime<TimeZone>,
 }
 
 impl RequestTransaction {
     pub fn new() -> Self {
         Self {
             id: Uuid::new_v4(),
-            received: Local::now(),
+            received: TimeZone::now(),
         }
     }
 
@@ -32,10 +38,10 @@ impl RequestTransaction {
     }
 
     pub fn elapsed_as_string(&self) -> String {
-        (Local::now() - self.received).to_string()
+        (TimeZone::now() - self.received).to_string()
     }
 
     pub fn elapsed_ns(&self) -> Option<i64> {
-        (Local::now() - self.received).num_nanoseconds()
+        (TimeZone::now() - self.received).num_nanoseconds()
     }
 }

@@ -30,6 +30,7 @@ default = []
 callbacks = []
 
 transactions = ["chrono", "uuid"]
+local_time = []
 
 terminal = ["slog-term"]
 bunyan = ["slog-bunyan"]
