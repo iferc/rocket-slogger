@@ -11,6 +11,7 @@ impl<'r> FromRequest<'r> for Slogger {
         match request.guard::<&State<Slogger>>().await {
             Outcome::Success(slogger) => {
                 let logger = slogger.get_for_request(request);
+
                 rocket::outcome::Outcome::Success(Slogger::from_logger(logger))
             }
 

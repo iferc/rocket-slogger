@@ -120,14 +120,11 @@ impl Fairing for Slogger {
             }
         }
 
-        let status = response.status();
         let body_size = response.body_mut().size().await;
 
         info!(
             logger,
             "Response";
-            "reason" => status.reason().map(|reason| reason.to_string()),
-            "code" => status.code,
             "size" => body_size,
         );
     }

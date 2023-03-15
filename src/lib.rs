@@ -1,7 +1,7 @@
 pub mod fairing;
 pub mod from_request;
 
-#[cfg(feature = "transaction")]
+#[cfg(feature = "transactions")]
 pub mod transaction;
 
 // various slog re-exports for convenience
@@ -98,13 +98,13 @@ impl Slogger {
             .collect::<Vec<_>>()
             .join("; ");
 
-        #[cfg(not(feature = "transaction"))]
+        #[cfg(not(feature = "transactions"))]
         let logger = self.logger.new(log_fields!(
             "user-agent" => user_agent,
             "content-type" => content_type,
         ));
 
-        #[cfg(feature = "transaction")]
+        #[cfg(feature = "transactions")]
         let logger = {
             let transaction = transaction::RequestTransaction::new().attach_on(&request);
 
@@ -120,23 +120,32 @@ impl Slogger {
         Self::new_logger_with_request_details(&logger, request)
     }
 
-    pub fn get_for_response(&self, request: &Request<'_>, _: &Response<'_>) -> Logger {
-        let logger = &*self.logger;
+    pub fn get_for_response(&self, request: &Request<'_>, response: &Response<'_>) -> Logger {
+        let content_type = response.content_type().map(|format| format.to_string());
+        let status = response.status();
 
-        #[cfg(feature = "transaction")]
-        let new_logger = {
+        #[cfg(not(feature = "transactions"))]
+        let logger = self.logger.new(log_fields!(
+            "content-type" => content_type,
+            "reason" => status.reason().map(|reason| reason.to_string()),
+            "code" => status.code,
+        ));
+
+        #[cfg(feature = "transactions")]
+        let logger = {
             let transaction = transaction::RequestTransaction::new().attach_on(&request);
 
-            logger.new(log_fields!(
+            self.logger.new(log_fields!(
                 "elapsed_ns" => transaction.elapsed_ns(),
                 "received" => transaction.received_as_string(),
                 "transaction" => transaction.id_as_string(),
+                "content-type" => content_type,
+                "reason" => status.reason().map(|reason| reason.to_string()),
+                "code" => status.code,
             ))
         };
-        #[cfg(feature = "transaction")]
-        let logger = &new_logger;
 
-        Self::new_logger_with_request_details(logger, request)
+        Self::new_logger_with_request_details(&logger, request)
     }
 
     fn new_logger_with_request_details(logger: &Logger, request: &Request<'_>) -> Logger {

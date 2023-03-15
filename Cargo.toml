@@ -29,7 +29,7 @@ default = []
 
 callbacks = []
 
-transaction = ["chrono", "uuid"]
+transactions = ["chrono", "uuid"]
 
 terminal = ["slog-term"]
 bunyan = ["slog-bunyan"]
