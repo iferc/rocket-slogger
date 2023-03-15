@@ -198,6 +198,12 @@ impl Slogger {
     }
 }
 
+impl From<Logger> for Slogger {
+    fn from(logger: Logger) -> Self {
+        Slogger::from_logger(logger)
+    }
+}
+
 impl std::ops::Deref for Slogger {
     type Target = Logger;
 
