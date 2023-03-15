@@ -83,7 +83,7 @@ a new `slog::Logger` instance with any new properties added before the log messa
 
 The `Box::pin( async move { ... } )` structure allows for calling `async` functions, such as executing a database query.
 
-If you know of a cleaner or simpler way of providing `async` callback functions, I very much welcome the suggestions!
+If you know of a cleaner or simpler way of providing `async` callback functions, the suggestions are very much welcome!
 
 _If the feature `terminal` is enabled_
 
