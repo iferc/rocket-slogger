@@ -106,7 +106,7 @@ impl Slogger {
 
         #[cfg(feature = "transactions")]
         let logger = {
-            let transaction = transaction::RequestTransaction::new().attach_on(&request);
+            let transaction = transaction::RequestTransaction::new().attach_on(request);
 
             self.logger.new(log_fields!(
                 "received" => transaction.received_as_string(),
@@ -133,7 +133,7 @@ impl Slogger {
 
         #[cfg(feature = "transactions")]
         let logger = {
-            let transaction = transaction::RequestTransaction::new().attach_on(&request);
+            let transaction = transaction::RequestTransaction::new().attach_on(request);
 
             self.logger.new(log_fields!(
                 "elapsed_ns" => transaction.elapsed_ns(),
