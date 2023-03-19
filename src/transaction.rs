@@ -14,6 +14,12 @@ pub struct RequestTransaction {
     pub received: DateTime<TimeZone>,
 }
 
+impl Default for RequestTransaction {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RequestTransaction {
     pub fn new() -> Self {
         Self {
