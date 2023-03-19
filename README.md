@@ -10,6 +10,72 @@ On start-up, all configurations are shown as an initial log message. This both l
 and can serve as a sort of signal that the web server has been started/restarted. Next is a log message detailing
 the routes available, then one of error status catchers, then one of the host and port the server is listening on.
 
+## Setup
+
+Rust toolchain required. See [https://rustup.rs/](https://rustup.rs/) for installation instructions.
+
+Add this crate to your Rust project:
+
+```toml
+rocket-slogger = "0.1.0"
+```
+
+### Quick Start
+
+Instantiate the fairing (middleware) with a [`slog`](https://github.com/slog-rs/slog)-compatible `Logger`, then add it to your Rocket server:
+
+```rs
+// Wrap your `slog`-compatible Logger with the fairing
+let fairing = Slogger::from_logger(logger);
+
+// Load config from the usual places, such as Rocket.toml and the environment
+let mut config = Config::from(Config::figment());
+
+// The fairing does not turn off Rocket's pretty print logs by default
+config.log_level = LogLevel::Off;
+
+rocket::custom(config)
+    .attach(fairing)
+    ...
+```
+
+### When the `terminal` feature is enabled
+
+The helper function `Slogger::new_terminal_logger()` will setup the logger to output plain text for each
+log message that looks like the following:
+
+```
+Mar 15 04:32:00.815 INFO Request, method: GET, path: /, content-type: None, user-agent: vscode-restclient
+
+Mar 15 04:32:00.815 INFO Response, size: 11, method: GET, path: /, route: always_greet, rank: -9, code: 200, reason: OK, content-type: text/plain; charset=utf-8
+```
+
+### When the `bunyan` feature is enabled
+
+The helper function `Slogger::new_bunyan_logger()` will setup the logger to output
+[bunyan-style](https://github.com/slog-rs/bunyan) JSON objects for each log message that looks like the following:
+
+```
+{"msg":"Request","v":0,"name":"My App","level":30,"time":"2023-03-15T04:29:35.865466064Z","hostname":"my-computer","pid":810142,"method":"GET","path":"/","content-type":null,"user-agent":"vscode-restclient"}
+
+{"msg":"Response","v":0,"name":"My App","level":30,"time":"2023-03-15T04:29:35.867971878Z","hostname":"my-computer","pid":810142,"method":"GET","path":"/","route":"always_greet","rank":-9,"code":200,"reason":"OK","content-type":"text/plain; charset=utf-8","size":11}
+```
+
+Otherwise the `Slogger` fairing can be built with any [`slog`](https://github.com/slog-rs/slog)-compatible
+`Logger` with `Slogger::from_logger(logger)`.
+
+### Examples
+
+There are minimal implementations of a Rocket web server with this logging middleware attached
+in various configurations inside the `./examples` folder.
+
+Keep in mind that some of the examples require features to be enabled.
+
+For example, the command to run the `bunyan-callbacks-features` is
+`cargo run --example bunyan-callbacks-features --features bunyan,callbacks`.
+
+## Details
+
 For each request received, a log message is generated containing the following information:
 - HTTP Method (e.g. get, post, put, etc)
 - URL Path (e.g. /path/to/route?query=string)
@@ -23,7 +89,7 @@ For each response sent, a log message is generated containing the following info
 - Status Code and Reason
 - Response Body Size
 
-_If the feature `transactions` is enabled_
+### When the `transactions` feature is enabled
 
 For each request received, in addition to the above, the following information will also be generated:
 - Exact UTC date and time with time zone of when the middleware received the request.
@@ -34,14 +100,14 @@ For each response sent, in addition to the above, the following information will
 - The same unique UUID that corelates the response log to the request log.
 - The total elapsed time from when the middleware received the request to when it received the response in nanoseconds.
 
-_If the feature `local_time` is enabled_
+### When the `local_time` feature is enabled
 
 The exact date and time with time zone of when the middleware received the request is shown
 in the systems local time zone.
 
 Note however that the `time` field of when the log was made remains in the UTC time zone.
 
-_If the feature `callbacks` is enabled_
+### When the `callbacks` feature is enabled
 
 Functions can be attached to the fairing either on request or on response.
 
@@ -84,42 +150,3 @@ a new `slog::Logger` instance with any new properties added before the log messa
 The `Box::pin( async move { ... } )` structure allows for calling `async` functions, such as executing a database query.
 
 If you know of a cleaner or simpler way of providing `async` callback functions, the suggestions are very much welcome!
-
-_If the feature `terminal` is enabled_
-
-The helper function `Slogger::new_terminal_logger()` will setup the logger to output plain text for each
-log message that looks like the following:
-
-```
-Mar 15 04:32:00.815 INFO Request, method: GET, path: /, content-type: None, user-agent: vscode-restclient
-
-Mar 15 04:32:00.815 INFO Response, size: 11, method: GET, path: /, route: always_greet, rank: -9, code: 200, reason: OK, content-type: text/plain; charset=utf-8
-```
-
-_If the feature `bunyan` is enabled_
-
-The helper function `Slogger::new_bunyan_logger()` will setup the logger to output
-[bunyan-style](https://github.com/slog-rs/bunyan) JSON objects for each log message that looks like the following:
-
-```
-{"msg":"Request","v":0,"name":"My App","level":30,"time":"2023-03-15T04:29:35.865466064Z","hostname":"my-computer","pid":810142,"method":"GET","path":"/","content-type":null,"user-agent":"vscode-restclient"}
-
-{"msg":"Response","v":0,"name":"My App","level":30,"time":"2023-03-15T04:29:35.867971878Z","hostname":"my-computer","pid":810142,"method":"GET","path":"/","route":"always_greet","rank":-9,"code":200,"reason":"OK","content-type":"text/plain; charset=utf-8","size":11}
-```
-
-Otherwise the `Slogger` fairing can be built with any [`slog`](https://github.com/slog-rs/slog)-compatible
-`Logger` with `Slogger::from_logger(logger)`.
-
-## Pre-requisites
-
-Rust toolchain required. See [https://rustup.rs/](https://rustup.rs/) for installation instructions.
-
-## Examples
-
-There are minimal implementations of a Rocket web server with this logging middleware attached
-in various configurations inside the `./examples` folder.
-
-Keep in mind that some of the examples require features to be enabled.
-
-For example, the command to run the `bunyan-callbacks-features` is
-`cargo run --example bunyan-callbacks-features --features bunyan,callbacks`.
