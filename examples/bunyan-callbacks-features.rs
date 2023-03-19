@@ -109,7 +109,7 @@ async fn rocket() -> Rocket<Build> {
     // that this example runs with the feature enabled
     let fairing = logger();
 
-    let mut config = Config::default();
+    let mut config = Config::from(Config::figment());
     config.log_level = LogLevel::Off;
 
     rocket::custom(config)

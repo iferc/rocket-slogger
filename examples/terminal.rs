@@ -15,7 +15,7 @@ async fn rocket() -> Rocket<Build> {
 
     let fairing = Slogger::from_logger(logger);
 
-    let mut config = Config::default();
+    let mut config = Config::from(Config::figment());
     config.log_level = LogLevel::Off;
 
     rocket::custom(config)
