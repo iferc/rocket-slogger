@@ -1,16 +1,16 @@
 [package]
 name = "rocket-slogger"
-version = "0.1.0-rc.2"
+version = "0.1.0"
 authors = ["iferc <github@iferc.ca>"]
 edition = "2021"
 description = """
-Middleware (fairing) for Rocket.rs web servers to have integrated slog logging of api activity
+Middleware (fairing) for Rocket.rs 0.5-rc.2 web servers to have integrated slog logging of request activity
 """
 repository = "https://github.com/iferc/rocket-slogger"
-keywords = ["rocket", "slog", "slogger", "logging"]
+keywords = ["rocket", "slog", "slogger", "logging", "middleware"]
 license = "MIT OR Apache-2.0"
 readme = "./README.md"
-exclude = [".github", "example"]
+exclude = [".github", "examples"]
 
 [dependencies]
 rocket = "0.5.0-rc.2"
