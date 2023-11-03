@@ -15,7 +15,7 @@ impl<'r> FromRequest<'r> for Slogger {
                 rocket::outcome::Outcome::Success(Slogger::from_logger(logger))
             }
 
-            _ => Outcome::Failure((Status::InternalServerError, ())),
+            _ => Outcome::Error((Status::InternalServerError, ())),
         }
     }
 }
