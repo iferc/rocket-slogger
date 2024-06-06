@@ -1,10 +1,10 @@
 [package]
 name = "rocket-slogger"
-version = "0.2.0"
-authors = ["iferc <github@iferc.ca>"]
+version = "1.0.0"
+authors = ["Jenifer Champagne <jen@iferc.ca>"]
 edition = "2021"
 description = """
-Middleware (fairing) for Rocket.rs 0.5-rc.4 web servers to have integrated slog logging of request activity
+Middleware (fairing) for Rocket.rs 0.5 web servers to have integrated slog logging of request activity
 """
 repository = "https://github.com/iferc/rocket-slogger"
 keywords = ["rocket", "slog", "slogger", "logging", "middleware"]
@@ -13,7 +13,7 @@ readme = "./README.md"
 exclude = [".github", "examples"]
 
 [dependencies]
-rocket = "0.5.0"
+rocket = "0.5"
 slog = "2.7"
 slog-term = { version = "2.9", optional = true }
 slog-bunyan = { version = "2.5", optional = true }
