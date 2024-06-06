@@ -4,7 +4,7 @@ use rocket::config::Config;
 use rocket::log::LogLevel;
 use rocket::{catchers, routes, Build, Rocket};
 use rocket_slogger::Slogger;
-use routes::{always_fail, always_greet, always_thank, not_found};
+use routes::{always_fail, always_greet, always_thank, dynamic_path, not_found};
 
 #[cfg(feature = "terminal")]
 fn logger() -> Slogger {
@@ -27,6 +27,9 @@ async fn rocket() -> Rocket<Build> {
 
     rocket::custom(config)
         .attach(fairing)
-        .mount("/", routes![always_greet, always_thank, always_fail])
+        .mount(
+            "/",
+            routes![always_greet, always_thank, always_fail, dynamic_path],
+        )
         .register("/", catchers![not_found])
 }

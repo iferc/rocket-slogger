@@ -155,11 +155,12 @@ impl Slogger {
                 "route" => route.name.as_ref().map(|route| route.to_string()),
                 "path" => format!("{}", route.uri),
                 "method" => format!("{}", route.method),
+                "uri" => format!("{}", request.uri()),
             ))
         } else {
             logger.new(log_fields!(
-                "path" => format!("{}", request.uri()),
                 "method" => format!("{}", request.method()),
+                "uri" => format!("{}", request.uri()),
             ))
         }
     }

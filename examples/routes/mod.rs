@@ -1,4 +1,4 @@
-use rocket_slogger::{info, Slogger};
+use rocket_slogger::{info, log_fields, Slogger};
 
 use rocket::{catch, get, post};
 
@@ -20,6 +20,12 @@ pub fn always_fail(log: Slogger) -> &'static str {
     todo!()
 }
 
+#[get("/<dynamic>")]
+pub fn dynamic_path(log: Slogger, dynamic: String) -> &'static str {
+    info!(log, "Received dynamic path"; log_fields!("dynamic" => dynamic));
+    "Very interesting!"
+}
+
 #[catch(404)]
 pub async fn not_found(req: &rocket::Request<'_>) -> String {
     let logger = req
@@ -29,7 +35,7 @@ pub async fn not_found(req: &rocket::Request<'_>) -> String {
         .expect("Slogger should always be valid");
 
     // there are already logs for each user request so this is not a great use case
-    info!(logger, "Confused by a user"; "code" => 404, "uri" => %req.uri());
+    info!(logger, "Confused by a user");
 
     format!("Could not find `{}`.", req.uri())
 }
