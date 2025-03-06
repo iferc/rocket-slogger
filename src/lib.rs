@@ -66,10 +66,12 @@ impl Slogger {
 
     #[cfg(feature = "bunyan")]
     pub fn new_bunyan_logger(name: &'static str) -> Self {
+        use slog_envlogger::EnvLogger;
         use std::sync::Mutex;
 
         let bunyan_logger = slog_bunyan::with_name(name, std::io::stderr()).build();
-        let logger = Logger::root(Mutex::new(bunyan_logger).fuse(), log_fields!());
+        let env_logger = EnvLogger::new(bunyan_logger);
+        let logger = Logger::root(Mutex::new(env_logger).fuse(), log_fields!());
 
         Self::from_logger(logger)
     }
