@@ -15,6 +15,7 @@ exclude = [".github", "examples"]
 [dependencies]
 rocket = "0.5"
 slog = { version = "2.7", features = ["release_max_level_debug"] }
+slog-envlogger = "2.2.0"
 slog-term = { version = "2.9", optional = true }
 slog-bunyan = { version = "2.5", optional = true }
 chrono = { version = "0.4", optional = true }
