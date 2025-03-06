@@ -39,6 +39,21 @@ rocket::custom(config)
     ...
 ```
 
+### When the `envlogger` feature is enabled
+
+Adds support for `RUST_LOG` environment variable handling to control log levels
+output. See the `slog-envlogger` cratte documentation for more details.
+
+```sh
+RUST_LOG=trace cargo run ...
+RUST_LOG=debug cargo run ...
+RUST_LOG=info cargo run ...
+RUST_LOG=warn cargo run ...
+RUST_LOG=error cargo run ...
+```
+
+By default when enabled, only warning and error levels are displayed.
+
 ### When the `terminal` feature is enabled
 
 The helper function `Slogger::new_terminal_logger()` will setup the logger to output plain text for each

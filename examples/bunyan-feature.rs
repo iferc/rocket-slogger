@@ -22,6 +22,7 @@ async fn rocket() -> Rocket<Build> {
     // that this example runs with the feature enabled
     let fairing = logger();
 
+    // Turn off Rocket logging, not rocket-slogger logging.
     let mut config = Config::from(Config::figment());
     config.log_level = LogLevel::Off;
 

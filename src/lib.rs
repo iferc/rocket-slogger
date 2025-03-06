@@ -54,17 +54,39 @@ pub struct Slogger {
 }
 
 impl Slogger {
-    #[cfg(feature = "terminal")]
+    #[cfg(all(feature = "terminal", not(feature = "envlogger")))]
     pub fn new_terminal_logger() -> Self {
         use slog_term::{FullFormat, PlainSyncDecorator};
 
-        let plain = PlainSyncDecorator::new(std::io::stdout());
-        let logger = Logger::root(FullFormat::new(plain).build().fuse(), log_fields!());
+        let plain_logger = PlainSyncDecorator::new(std::io::stdout());
+        let logger = Logger::root(FullFormat::new(plain_logger).build().fuse(), log_fields!());
 
         Self::from_logger(logger)
     }
 
-    #[cfg(feature = "bunyan")]
+    #[cfg(all(feature = "terminal", feature = "envlogger"))]
+    pub fn new_terminal_logger() -> Self {
+        use slog_envlogger::EnvLogger;
+        use slog_term::{FullFormat, PlainSyncDecorator};
+
+        let plain_logger = PlainSyncDecorator::new(std::io::stdout());
+        let env_logger = EnvLogger::new(plain_logger);
+        let logger = Logger::root(FullFormat::new(env_logger).build().fuse(), log_fields!());
+
+        Self::from_logger(logger)
+    }
+
+    #[cfg(all(feature = "bunyan", not(feature = "envlogger")))]
+    pub fn new_bunyan_logger(name: &'static str) -> Self {
+        use std::sync::Mutex;
+
+        let bunyan_logger = slog_bunyan::with_name(name, std::io::stderr()).build();
+        let logger = Logger::root(Mutex::new(bunyan_logger).fuse(), log_fields!());
+
+        Self::from_logger(logger)
+    }
+
+    #[cfg(all(feature = "bunyan", feature = "envlogger"))]
     pub fn new_bunyan_logger(name: &'static str) -> Self {
         use slog_envlogger::EnvLogger;
         use std::sync::Mutex;
