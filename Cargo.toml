@@ -12,6 +12,26 @@ license = "MIT OR Apache-2.0"
 readme = "./README.md"
 exclude = [".github", "examples"]
 
+[[example]]
+name = "bunyan"
+path = "examples/bunyan.rs"
+
+[[example]]
+name = "bunyan-feature"
+path = "examples/bunyan-feature.rs"
+
+[[example]]
+name = "bunyan-callbacks-features"
+path = "examples/bunyan-callbacks-features.rs"
+
+[[example]]
+name = "terminal"
+path = "examples/terminal.rs"
+
+[[example]]
+name = "terminal-feature"
+path = "examples/terminal-feature.rs"
+
 [dependencies]
 rocket = "0.5"
 slog = "2.7"
@@ -19,7 +39,7 @@ slog-envlogger = { version = "2.2", optional = true }
 slog-term = { version = "2.9", optional = true }
 slog-bunyan = { version = "2.5", optional = true }
 chrono = { version = "0.4", optional = true }
-uuid = { version = "1.8", features = ["v4"], optional = true }
+uuid = { version = "1.15", features = ["v4"], optional = true }
 
 [dev-dependencies]
 slog-term = "2.9"
